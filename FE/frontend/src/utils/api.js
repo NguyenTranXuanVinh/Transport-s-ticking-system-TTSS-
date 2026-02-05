@@ -11,9 +11,13 @@ export const testDbConnection = async () => {
   }
 };
 
-export const searchTickets = async () => {
+export const searchTickets = async (params = {}) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/tickets`);
+    // Chuyển object params thành query string (vd: ?vehicle_id=1)
+    const queryString = new URLSearchParams(params).toString();
+    const url = `${API_BASE_URL}/trips?${queryString}`;
+
+    const response = await fetch(url);
     const data = await response.json();
     return data;
   } catch (error) {

@@ -1,21 +1,27 @@
 import { memo, useState, useEffect } from "react";
-import { searchTickets } from "../../utils/api";
+import { searchTickets } from "../../../utils/api";
+import { useLocation } from "react-router-dom";
 import "./style.scss";
 // Assuming you have image assets or can use placeholders
 // import someImage from "path/to/image";
 
 const SearchPage = () => {
   const [sortOption, setSortOption] = useState("default");
-
   const [tickets, setTickets] = useState([]);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchTickets = async () => {
-      const data = await searchTickets();
+      // Lấy vehicle_id từ URL
+      const searchParams = new URLSearchParams(location.search);
+      const vehicleId = searchParams.get("vehicle_id");
+
+      // Gọi API với tham số vehicle_id (nếu có)
+      const data = await searchTickets({ vehicle_id: vehicleId });
       setTickets(data);
     };
     fetchTickets();
-  }, []);
+  }, [location.search]); // Chạy lại khi URL thay đổi
 
   return (
     <div className="container search-page-container">
@@ -85,32 +91,6 @@ const SearchPage = () => {
             </li>
           </ul>
         </div>
-
-        <div className="filter-group">
-          <div className="filter-header">
-            <span>Lọc</span>
-            <button>Xóa lọc</button>
-          </div>
-          <h3>Giờ đi</h3>
-          <ul className="filter-list">
-            <li>
-              <input type="checkbox" id="morning" />
-              <label htmlFor="morning">Sáng sớm (00:00 - 06:00)</label>
-            </li>
-            <li>
-              <input type="checkbox" id="am" />
-              <label htmlFor="am">Buổi sáng (06:01 - 12:00)</label>
-            </li>
-            <li>
-              <input type="checkbox" id="pm" />
-              <label htmlFor="pm">Buổi chiều (12:01 - 18:00)</label>
-            </li>
-            <li>
-              <input type="checkbox" id="evening" />
-              <label htmlFor="evening">Buổi tối (18:01 - 23:59)</label>
-            </li>
-          </ul>
-        </div>
       </div>
 
       <div className="search-content">
@@ -133,7 +113,6 @@ const SearchPage = () => {
                   <div className="rating">
                     <i className="fa fa-star"></i> {ticket.rating}
                   </div>
-                  <span className="rating-count">({ticket.ratingCount})</span>
                 </div>
                 <div className="detail-row">
                   <span className="time-group">
@@ -153,7 +132,6 @@ const SearchPage = () => {
                   </span>
                   <button>Chọn chuyến</button>
                 </div>
-                <button className="details-link">Thông tin chi tiết</button>
               </div>
             </div>
           ))}

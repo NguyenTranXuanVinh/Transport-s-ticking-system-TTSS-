@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useState } from "react";
 import "./style.scss";
 import {
   BsFacebook,
@@ -10,9 +10,20 @@ import {
   BsFillTicketPerforatedFill,
   BsBusFrontFill,
 } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatter } from "utils/formatter";
+import { ROUTERS } from "utils/router";
+
 const Header = () => {
+  const [vehicleId, setVehicleId] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Chuyển hướng sang trang tìm kiếm với tham số vehicle_id
+    navigate(`${ROUTERS.USER.SEARCH}?vehicle_id=${vehicleId}`);
+  };
+
   return (
     <>
       <div className="header__top">
@@ -88,9 +99,14 @@ const Header = () => {
         </div>
       </div>
       <div className="search_bar">
-        <form action="#">
+        <form onSubmit={handleSearch}>
           <div>
-            <input type="text" placeholder="Tìm kiếm xe" />
+            <input
+              type="text"
+              placeholder="Nhập ID xe để tìm kiếm..."
+              value={vehicleId}
+              onChange={(e) => setVehicleId(e.target.value)}
+            />
             <button type="submit" className="button-submit">
               Tìm kiếm
             </button>
