@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_bp = Blueprint('auth', __name__)
 
-# 3. API Đăng ký (Register)
+# API Đăng ký (Register)
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.json
@@ -26,7 +26,7 @@ def register():
     db.session.commit()
     return jsonify({"message": "Đăng ký thành công"}), 201
 
-# 4. API Đăng nhập (Login)
+# API Đăng nhập (Login)
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.json

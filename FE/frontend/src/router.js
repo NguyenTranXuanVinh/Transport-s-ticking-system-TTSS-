@@ -4,6 +4,7 @@ import { ROUTERS } from "./utils/router";
 import MasterLayout from "./pages/users/theme/masterLayout";
 import ProfilePage from "./pages/users/profilePage";
 import SearchPage from "./pages/users/searchPage";
+import LoginPage from "./pages/users/loginPage";
 
 const renderUserRouter = () => {
   const userRouter = [
@@ -18,6 +19,10 @@ const renderUserRouter = () => {
     {
       path: ROUTERS.USER.SEARCH,
       component: <SearchPage />,
+    },
+    {
+      path: ROUTERS.USER.LOGIN,
+      component: <LoginPage />,
     },
   ];
   return (

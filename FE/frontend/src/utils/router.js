@@ -3,5 +3,6 @@ export const ROUTERS = {
     HOME: "",
     PROFILE: "profile",
     SEARCH: "tim-kiem-ve",
+    LOGIN: "dang-nhap",
   },
 };

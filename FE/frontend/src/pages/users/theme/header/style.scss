@@ -8,6 +8,10 @@
 .header__bottom {
   background: map.get($theme-color, "next-header");
   color: map.get($theme-color, "normal-text");
+  a {
+    color: map.get($theme-color, "normal-text");
+    text-decoration: none;
+  }
 }
 .header__top_right {
   display: flex;
@@ -23,6 +27,7 @@
     font-size: 20px;
     display: inline-block;
     color: map.get($theme-color, "normal-text");
+    text-decoration: none;
   }
   li:last-child {
     cursor: pointer;

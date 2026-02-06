@@ -53,11 +53,12 @@ const Header = () => {
                     <BsGithub />
                   </Link>
                 </li>
+
                 <li>
-                  <Link to={""}>
+                  <Link to={`/${ROUTERS.USER.LOGIN}`}>
                     <BsPersonCircle />
+                    <span>Đăng nhập</span>
                   </Link>
-                  <span>Đăng nhập</span>
                 </li>
               </ul>
             </div>
@@ -72,7 +73,9 @@ const Header = () => {
                 <div style={{ fontSize: "30px" }}>
                   <BsFillTrainFrontFill />
                   <BsBusFrontFill />
-                  <span>Hệ thống bán vé tàu xe</span>
+                  <Link to={`/${ROUTERS.USER.HOME}`}>
+                    <span>Hệ thống bán vé tàu xe</span>
+                  </Link>
                   <BsFillTicketPerforatedFill />
                 </div>
               </div>

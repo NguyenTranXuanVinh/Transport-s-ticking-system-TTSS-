@@ -25,3 +25,37 @@ export const searchTickets = async (params = {}) => {
     return [];
   }
 };
+
+export const login = async (email, password) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await response.json();
+    return { status: response.status, data };
+  } catch (error) {
+    console.error("Login error:", error);
+    return { status: 500, data: { message: "Lỗi kết nối server" } };
+  }
+};
+
+export const register = async (userData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
+    const data = await response.json();
+    return { status: response.status, data };
+  } catch (error) {
+    console.error("Register error:", error);
+    return { status: 500, data: { message: "Lỗi kết nối server" } };
+  }
+};
