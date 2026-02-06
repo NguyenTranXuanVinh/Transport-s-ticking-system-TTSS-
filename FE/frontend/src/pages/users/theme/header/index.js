@@ -20,8 +20,8 @@ const Header = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Chuyển hướng sang trang tìm kiếm với tham số vehicle_id
-    navigate(`${ROUTERS.USER.SEARCH}?vehicle_id=${vehicleId}`);
+    // Chuyển hướng sang trang tìm kiếm với tham số id (trip_id)
+    navigate(`${ROUTERS.USER.SEARCH}?id=${vehicleId}`);
   };
 
   return (
@@ -106,7 +106,7 @@ const Header = () => {
           <div>
             <input
               type="text"
-              placeholder="Nhập ID xe để tìm kiếm..."
+              placeholder="Nhập ID chuyến đi để tìm kiếm..."
               value={vehicleId}
               onChange={(e) => setVehicleId(e.target.value)}
             />

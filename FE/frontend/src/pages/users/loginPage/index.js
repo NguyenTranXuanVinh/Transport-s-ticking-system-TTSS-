@@ -127,7 +127,6 @@ const LoginPage = () => {
         </form>
 
         <div className="switch-mode">
-          {isLogin ? "Chưa có tài khoản?" : "Đã có tài khoản?"}
           <span
             onClick={() => {
               setIsLogin(!isLogin);
