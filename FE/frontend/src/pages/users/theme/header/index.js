@@ -92,7 +92,7 @@ const Header = () => {
                   <li>
                     <Link to="#">
                       <BsCart4 />
-                      <span>5</span>
+                      <span></span>
                     </Link>
                   </li>
                 </ul>

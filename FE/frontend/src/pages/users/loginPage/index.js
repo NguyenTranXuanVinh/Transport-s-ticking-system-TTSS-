@@ -26,43 +26,37 @@ const LoginPage = () => {
     setSuccess("");
     setLoading(true);
 
-    try {
-      if (isLogin) {
-        // Login
-        const res = await login(formData.email, formData.password);
-        if (res.status === 200) {
-          // Lưu thông tin user vào localStorage hoặc context (tạm thời chưa làm context)
-          localStorage.setItem("user", JSON.stringify(res.data));
-          setSuccess("Đăng nhập thành công! Đang chuyển hướng...");
-          setTimeout(() => {
-            navigate("/"); // Chuyển về trang chủ
-          }, 1000);
-        } else {
-        }
-      } else {
-        // Register
-        const res = await register({
-          email: formData.email,
-          password: formData.password,
-          full_name: formData.fullName,
-          phone_number: formData.phoneNumber,
-        });
-
-        if (res.status === 201) {
-          setSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
-          // Chuyển sang form đăng nhập
-          setTimeout(() => {
-            setIsLogin(true);
-            setSuccess("");
-            setFormData({ ...formData, password: "" }); // Clear password
-          }, 1500);
-        } else {
-        }
+    if (isLogin) {
+      // Login
+      const res = await login(formData.email, formData.password);
+      if (res.status === 200) {
+        localStorage.setItem("user", JSON.stringify(res.data));
+        setSuccess("Đăng nhập thành công!");
+        setTimeout(() => {
+          navigate("/"); // Chuyển về trang chủ
+        }, 1000);
       }
-    } catch (err) {
-    } finally {
-      setLoading(false);
+    } else {
+      // Register
+      const res = await register({
+        email: formData.email,
+        password: formData.password,
+        full_name: formData.fullName,
+        phone_number: formData.phoneNumber,
+      });
+
+      if (res.status === 201) {
+        setSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
+        // Chuyển sang form đăng nhập
+        setTimeout(() => {
+          setIsLogin(true);
+          setSuccess("");
+          setFormData({ ...formData, password: "" }); // Clear password
+        }, 1500);
+      }
     }
+
+    setLoading(false);
   };
 
   return (

@@ -9,14 +9,9 @@ const SearchPage = () => {
 
   useEffect(() => {
     const fetchTickets = async () => {
-      // Lấy vehicle_id từ URL
+      // 1. Phân tích tham số từ URL
       const searchParams = new URLSearchParams(location.search);
-      const params = {};
-
-      // Convert URLSearchParams to object
-      for (const [key, value] of searchParams.entries()) {
-        params[key] = value;
-      }
+      const params = Object.fromEntries(searchParams.entries());
 
       // Gọi API với tất cả tham số
       const data = await searchTickets(params);
@@ -44,9 +39,7 @@ const SearchPage = () => {
               <div className="ticket-info">
                 <div className="company-info">
                   <h4>{ticket.company}</h4>
-                  <div className="rating">
-                    <i className="fa fa-star"></i> {ticket.rating}
-                  </div>
+                  <div className="rating">{ticket.rating}</div>
                 </div>
                 <div className="detail-row">
                   <span className="time-group">

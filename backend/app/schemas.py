@@ -10,7 +10,6 @@ class TripSchema(ma.SQLAlchemyAutoSchema):
         model = Trip
     
     # Mapping fields to match Frontend expectations
-    # Mapping fields to match Frontend expectations
     id = ma.Function(lambda obj: obj.trip_id)
     company = ma.Function(lambda obj: obj.vehicle.vehicle_name if obj.vehicle else "Nhà xe TTSS")
     startTime = ma.Function(lambda obj: obj.departure_time.strftime('%H:%M %d/%m'))
@@ -23,14 +22,6 @@ class TripSchema(ma.SQLAlchemyAutoSchema):
     ratingCount = ma.Function(lambda obj: obj.vehicle.rating_count if obj.vehicle and obj.vehicle.rating_count is not None else 0)
     
     isInstant = ma.Function(lambda obj: False) # Tắt tag xác nhận tức thì
-    
-    # Custom các trường dữ liệu trả về cho đẹp (Giữ lại nếu cần debug)
-    start_time = ma.Function(lambda obj: obj.departure_time.strftime('%H:%M %d/%m/%Y'))
-    
-    vehicle_name = ma.Function(lambda obj: obj.vehicle.vehicle_name if obj.vehicle else "Đang cập nhật")
-    origin = ma.Function(lambda obj: obj.route.origin_station.city if obj.route and obj.route.origin_station else "")
-    destination = ma.Function(lambda obj: obj.route.destination_station.city if obj.route and obj.route.destination_station else "")
-    
     # Hình ảnh thật từ DB
     image = ma.Function(lambda obj: obj.vehicle.image_url if obj.vehicle and obj.vehicle.image_url else "https://via.placeholder.com/300x200?text=No+Image")
 
