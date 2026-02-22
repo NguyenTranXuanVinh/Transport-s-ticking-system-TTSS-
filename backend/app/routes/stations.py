@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify
 from models import Station
-from schemas import stations_schema
 
 stations_bp = Blueprint('stations', __name__)
 
@@ -8,5 +7,11 @@ stations_bp = Blueprint('stations', __name__)
 @stations_bp.route('/stations', methods=['GET'])
 def get_stations():
     stations = Station.query.filter_by(is_active=True).all()
-    # Dùng stations_schema đã khai báo ở trên
-    return jsonify(stations_schema.dump(stations))
+    result = [{
+        "station_id": s.station_id,
+        "station_name": s.station_name,
+        "city": s.city,
+        "address": s.address,
+        "is_active": s.is_active
+    } for s in stations]
+    return jsonify(result)

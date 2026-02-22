@@ -26,7 +26,6 @@ const SearchPage = () => {
         <div className="results-header">
           <h2>Kết quả: {tickets.length} chuyến</h2>
         </div>
-
         <div className="ticket-list">
           {tickets.map((ticket) => (
             <div key={ticket.id} className="ticket-item">

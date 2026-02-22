@@ -1,6 +1,6 @@
 from flask import Flask, jsonify
 from config import Config
-from extensions import db, ma, cors
+from extensions import db, cors
 from routes.auth import auth_bp
 from routes.stations import stations_bp
 from routes.trips import trips_bp
@@ -14,7 +14,7 @@ app.json.ensure_ascii = False
 
 # Kết nối các thành phần
 db.init_app(app)
-ma.init_app(app)
+
 cors.init_app(app)
 
 # Đăng ký Blueprints (Routes)
