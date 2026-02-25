@@ -95,4 +95,52 @@ def book_ticket():
     except Exception as e:
         db.session.rollback() # Hủy bỏ nếu có lỗi
         return jsonify({"error": str(e)}), 500
-    
+    # ==========================================
+# 3. API HỦY VÉ (CANCEL BOOKING)
+# ==========================================
+@trips_bp.route('/cancel-booking/<int:booking_id>', methods=['POST'])
+def cancel_booking(booking_id):
+    try:
+        # 1. Tìm đơn hàng (Booking) kèm thông tin chuyến đi (Trip) để kiểm tra thời gian
+        booking = Booking.query.get(booking_id)
+        
+        if not booking:
+            return jsonify({"error": "Không tìm thấy mã đặt vé này!"}), 404
+
+        # 2. Kiểm tra trạng thái: Nếu đã hủy rồi thì không xử lý lại
+        if booking.status == 'CANCELLED':
+            return jsonify({"error": "Đơn hàng này đã được hủy trước đó."}), 400
+
+        # 3. Kiểm tra điều kiện thời gian: Không cho phép hủy nếu xe đã chạy
+        # (Sử dụng đối tượng Trip liên kết từ bảng Booking)
+        from datetime import datetime
+        if booking.trip.departure_time < datetime.now():
+            return jsonify({"error": "Không thể hủy vé vì chuyến xe đã khởi hành hoặc đã qua giờ chạy."}), 400
+
+        # 4. CẬP NHẬT TRẠNG THÁI (Giao dịch DB)
+        # - Đổi trạng thái Booking sang CANCELLED
+        booking.status = 'CANCELLED'
+        
+        # - Đổi trạng thái các Vé (Tickets) thuộc đơn này
+        # (Nếu bảng Ticket chưa có cột status, ta có thể đánh dấu vào tên hành khách)
+        tickets = Ticket.query.filter_by(booking_id=booking_id).all()
+        for ticket in tickets:
+            ticket.passenger_name = f"[ĐÃ HỦY] {ticket.passenger_name}"
+
+        # - Đổi trạng thái Thanh toán (Payment) sang REFUNDED (Hoàn tiền) hoặc CANCELLED
+        payment = Payment.query.filter_by(booking_id=booking_id).first()
+        if payment:
+            payment.status = 'REFUNDED'
+
+        # 5. CHỐT SỔ: Lưu thay đổi
+        db.session.commit()
+
+        return jsonify({
+            "message": f"Hủy đơn hàng {booking_id} thành công.",
+            "booking_id": booking_id,
+            "status": "CANCELLED"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
