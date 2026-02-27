@@ -11,12 +11,15 @@ import {
   BsBusFrontFill,
 } from "react-icons/bs";
 import { Link, useNavigate } from "react-router-dom";
-import { formatter } from "utils/formatter";
 import { ROUTERS } from "utils/router";
 
 const Header = () => {
   const [vehicleId, setVehicleId] = useState("");
   const navigate = useNavigate();
+
+  // Lấy thông tin user từ localStorage
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -55,10 +58,17 @@ const Header = () => {
                 </li>
 
                 <li>
-                  <Link to={`/${ROUTERS.USER.LOGIN}`}>
-                    <BsPersonCircle />
-                    <span>Đăng nhập</span>
-                  </Link>
+                  {user ? (
+                    <Link to={`/${ROUTERS.USER.PROFILE}`}>
+                      <BsPersonCircle />
+                      <span>{user.name}</span>
+                    </Link>
+                  ) : (
+                    <Link to={`/${ROUTERS.USER.LOGIN}`}>
+                      <BsPersonCircle />
+                      <span>Đăng nhập</span>
+                    </Link>
+                  )}
                 </li>
               </ul>
             </div>
@@ -85,9 +95,7 @@ const Header = () => {
                 <div
                   className="header__cart_price"
                   style={{ fontSize: "20px" }}
-                >
-                  <span>{formatter(300)}</span>
-                </div>
+                ></div>
                 <ul>
                   <li>
                     <Link to="#">
