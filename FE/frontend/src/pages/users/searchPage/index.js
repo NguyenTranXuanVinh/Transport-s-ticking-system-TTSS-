@@ -4,9 +4,11 @@ import { useLocation } from "react-router-dom";
 import "./style.scss";
 
 const SearchPage = () => {
+  // Danh sách chuyến xe tìm được từ API
   const [tickets, setTickets] = useState([]);
   const location = useLocation(); // biến chứa thông tin URL hiện tại
 
+  // Gọi lại API mỗi khi query string trên URL thay đổi
   useEffect(() => {
     const fetchTickets = async () => {
       // Phân tích tham số từ URL

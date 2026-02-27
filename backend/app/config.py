@@ -6,7 +6,7 @@ class Config:
         "&Authentication=ActiveDirectoryInteractive"
         "&Encrypt=yes"
         "&TrustServerCertificate=no"
-    )
+    )   
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_AS_ASCII = False
     # Giữ connection mở, không tạo mới mỗi request (tránh popup lặp lại)

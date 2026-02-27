@@ -14,13 +14,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 
 const Header = () => {
+  // Giá trị ID chuyến đi người dùng nhập vào ô tìm kiếm
   const [vehicleId, setVehicleId] = useState("");
   const navigate = useNavigate();
 
-  // Lấy thông tin user từ localStorage
+  // Lấy thông tin user từ localStorage (null nếu chưa đăng nhập)
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
+  /**
+   * Xử lý submit form tìm kiếm.
+   * Chuyển hướng sang trang tìm kiếm với tham số ?id=<vehicleId>.
+   */
   const handleSearch = (e) => {
     e.preventDefault();
     // Chuyển hướng sang trang tìm kiếm với tham số id (trip_id)
@@ -100,7 +105,6 @@ const Header = () => {
                   <li>
                     <Link to="#">
                       <BsCart4 />
-                      <span></span>
                     </Link>
                   </li>
                 </ul>
