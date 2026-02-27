@@ -28,7 +28,6 @@ app.register_blueprint(trips_bp, url_prefix='/api')
 def health_check():
     return jsonify({"status": "ok", "message": "Backend is running"})
 
-# --- CHẠY SERVER ---
 if __name__ == '__main__':
     with app.app_context():
         print("Server ready")

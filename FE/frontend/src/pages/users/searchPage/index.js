@@ -5,16 +5,18 @@ import "./style.scss";
 
 const SearchPage = () => {
   const [tickets, setTickets] = useState([]);
-  const location = useLocation();
+  const location = useLocation(); // biến chứa thông tin URL hiện tại
 
   useEffect(() => {
     const fetchTickets = async () => {
-      // 1. Phân tích tham số từ URL
+      // Phân tích tham số từ URL
       const searchParams = new URLSearchParams(location.search);
+      // Trả về các cặp [key,value] rồi gom thành object
       const params = Object.fromEntries(searchParams.entries());
 
-      // Gọi API với tất cả tham số
+      // Gọi API với tham số từ key
       const data = await searchTickets(params);
+      // Lưu kết quả vào ticket
       setTickets(data);
     };
     fetchTickets();
