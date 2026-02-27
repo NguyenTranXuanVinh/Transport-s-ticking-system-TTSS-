@@ -47,31 +47,6 @@
             object-fit: cover;
             border-radius: 4px;
           }
-
-          .tag-instant {
-            position: absolute;
-            top: 10px;
-            left: -5px;
-            background: #28a745;
-            color: white;
-            padding: 4px 8px;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 0 4px 4px 0;
-            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-
-            &::before {
-              content: "";
-              position: absolute;
-              top: 100%;
-              left: 0;
-              border-width: 3px;
-              border-style: solid;
-              border-color: #1e7e34 transparent transparent transparent;
-              transform: rotate(90deg);
-              transform-origin: top left;
-            }
-          }
         }
 
         .ticket-info {
@@ -99,11 +74,6 @@
               border-radius: 4px;
               font-size: 12px;
               margin-right: 5px;
-
-              i {
-                font-size: 10px;
-                margin-right: 2px;
-              }
             }
           }
 

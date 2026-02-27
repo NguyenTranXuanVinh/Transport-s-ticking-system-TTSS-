@@ -37,9 +37,8 @@ class Vehicle(db.Model):
     status = db.Column(db.String(20), default='ACTIVE')
     
     # New columns for real data
-    image_url = db.Column(db.Unicode(500)) # Link ảnh
-    rating = db.Column(db.Float, default=4.5) 
-    rating_count = db.Column(db.Integer, default=0)
+    img_url = db.Column(db.Unicode(500)) # Link ảnh
+    rating = db.Column(db.Float, default=4.5)
 
     trips = db.relationship("Trip", back_populates="vehicle")
 
