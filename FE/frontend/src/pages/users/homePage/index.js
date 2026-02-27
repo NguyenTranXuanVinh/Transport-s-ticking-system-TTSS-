@@ -52,13 +52,7 @@ const HomePage = () => {
               <div className="ticket-action">
                 <div className="price">{trip.price}</div>
                 <div className="action-bottom">
-                  <button
-                    onClick={() =>
-                      navigate(`/${ROUTERS.USER.SEARCH}?id=${trip.id}`)
-                    }
-                  >
-                    Chọn chuyến
-                  </button>
+                  <button>Chọn chuyến</button>
                 </div>
               </div>
             </div>
