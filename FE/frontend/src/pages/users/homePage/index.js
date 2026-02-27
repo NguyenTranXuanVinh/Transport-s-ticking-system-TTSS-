@@ -1,7 +1,6 @@
 import { memo, useState, useEffect } from "react";
 import { searchTickets } from "../../../utils/api";
 import { useNavigate } from "react-router-dom";
-import { ROUTERS } from "utils/router";
 import "./style.scss";
 
 const HomePage = () => {
