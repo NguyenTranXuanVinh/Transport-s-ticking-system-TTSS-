@@ -1,0 +1,118 @@
+.ticket-list {
+  .ticket-item {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    gap: 20px;
+    transition: box-shadow 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .ticket-image {
+      width: 200px;
+      height: 150px;
+      flex-shrink: 0;
+      position: relative;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
+      }
+    }
+
+    .ticket-info {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .company-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 6px;
+
+        h4 {
+          font-size: 18px;
+          font-weight: 700;
+          margin-right: 10px;
+          color: #333;
+        }
+
+        .rating {
+          background: #0066cc;
+          color: white;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 12px;
+          margin-right: 5px;
+        }
+      }
+
+      .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        color: #555;
+
+        .time-group {
+          font-weight: 600;
+          color: #333;
+        }
+
+        .dot {
+          color: #999;
+          font-size: 8px;
+        }
+
+        .seats-info {
+          color: #e67e22;
+          background-color: #fff3cd;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .ticket-action {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-end;
+      min-width: 150px;
+
+      .price {
+        font-size: 20px;
+        font-weight: 700;
+        color: #0066cc;
+      }
+
+      .action-bottom {
+        text-align: right;
+
+        button {
+          background: #ffc107;
+          color: #333;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 4px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s;
+
+          &:hover {
+            background: darken(#ffc107, 10%);
+          }
+        }
+      }
+    }
+  }
+}
