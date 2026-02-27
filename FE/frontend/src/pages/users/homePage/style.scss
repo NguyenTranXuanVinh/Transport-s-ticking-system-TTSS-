@@ -1,0 +1,31 @@
+@use "sass:map";
+@import "../../../styles/pages/all";
+
+.home-page-container {
+  padding: 24px 0;
+
+  .home-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1c1c1c;
+    }
+
+    span {
+      font-size: 14px;
+      color: #888;
+    }
+  }
+
+  .loading-text {
+    text-align: center;
+    padding: 60px 0;
+    color: #888;
+    font-size: 15px;
+  }
+}

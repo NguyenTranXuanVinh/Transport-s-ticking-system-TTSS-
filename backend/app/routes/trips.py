@@ -19,6 +19,15 @@ def find_trip(t):
 @trips_bp.route('/trips', methods=['GET'])
 def search_trips():
     trip_id = request.args.get('id')
-    query = Trip.query.filter_by(trip_id=int(trip_id)) if trip_id else Trip.query
-    trips = query.all()
+    if trip_id:
+        trips = Trip.query.filter(Trip.trip_id == int(trip_id)).all()
+    else:
+        all_trips = Trip.query.all()
+        # Dedup và sort theo trip_id tăng dần
+        seen = set()
+        trips = []
+        for t in sorted(all_trips, key=lambda x: x.trip_id):
+            if t.trip_id not in seen:
+                seen.add(t.trip_id)
+                trips.append(t)
     return jsonify([find_trip(t) for t in trips])
