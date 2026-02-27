@@ -14,14 +14,20 @@ import "./style.scss";
 const ProfilePage = () => {
   const navigate = useNavigate();
 
+  // Lấy dữ liệu user đã lưu trong localStorage (null nếu chưa đăng nhập)
   const storedUser = localStorage.getItem("user");
   const userInit = storedUser ? JSON.parse(storedUser) : null;
 
+  // Dữ liệu user hiện tại đang hiển thị
   const [user, setUser] = useState(userInit);
+  // Trạng thái đang ở chế độ chỉnh sửa hay chỉ xem
   const [isEditing, setIsEditing] = useState(false);
+  // Trạng thái đang gửi request cập nhật
   const [loading, setLoading] = useState(false);
+  // Thông báo kết quả sau khi cập nhật
   const [message, setMessage] = useState({ text: "", type: "" });
 
+  // Dữ liệu form chỉnh sửa, khởi tạo từ thông tin user hiện tại
   const [form, setForm] = useState({
     full_name: user?.name || "",
     phone_number: user?.phone_number || "",
@@ -29,6 +35,7 @@ const ProfilePage = () => {
     password: "",
   });
 
+  // Nếu chưa đăng nhập thì hiển thị màn hình thông báo
   if (!user) {
     return (
       <div className="profile-page">
@@ -44,10 +51,18 @@ const ProfilePage = () => {
     );
   }
 
+  /**
+   * Cập nhật giá trị form khi người dùng nhập liệu vào input.
+   */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Gửi request PUT lên API để cập nhật thông tin cá nhân.
+   * Nếu thành công: cập nhật localStorage và state user, tắt chế độ chỉnh sửa.
+   * Nếu thất bại: hiển thị thông báo lỗi từ server hoặc lỗi kết nối.
+   */
   const handleSave = async () => {
     setLoading(true);
     setMessage({ text: "", type: "" });
@@ -57,6 +72,7 @@ const ProfilePage = () => {
         phone_number: form.phone_number,
         email: form.email,
       };
+      // Chỉ gửi password nếu người dùng có nhập
       if (form.password) payload.password = form.password;
 
       const response = await fetch(
@@ -70,6 +86,7 @@ const ProfilePage = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // Cập nhật thông tin user trong localStorage và state
         const updatedUser = {
           ...user,
           name: form.full_name,
@@ -90,10 +107,14 @@ const ProfilePage = () => {
     setLoading(false);
   };
 
+  //Đăng xuất: xóa thông tin user khỏi localStorage và chuyển sang trang đăng nhập.
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate(`/${ROUTERS.USER.LOGIN}`);
   };
+
+  //Hủy chỉnh sửa: đặt lại form về dữ liệu user hiện tại, tắt chế độ chỉnh sửa.
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -109,7 +130,6 @@ const ProfilePage = () => {
   return (
     <div className="profile-page">
       <div className="profile-card">
-        {/* Avatar + tên */}
         <div className="profile-top">
           <div className="avatar-circle">
             <BsPersonCircle />
@@ -125,14 +145,12 @@ const ProfilePage = () => {
           </button>
         </div>
 
-        {/* Thông báo */}
         {message.text && (
           <div className={`profile-message ${message.type}`}>
             {message.text}
           </div>
         )}
 
-        {/* Các trường thông tin */}
         <div className="profile-fields">
           <div className="field-item">
             <label>Họ và tên</label>
@@ -178,22 +196,6 @@ const ProfilePage = () => {
               <span>{user.phone_number || "—"}</span>
             )}
           </div>
-
-          {isEditing && (
-            <div className="field-item">
-              <label>
-                Mật khẩu mới{" "}
-                <span className="optional">(để trống nếu không đổi)</span>
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Nhập mật khẩu mới"
-              />
-            </div>
-          )}
         </div>
 
         {/* Hành động */}

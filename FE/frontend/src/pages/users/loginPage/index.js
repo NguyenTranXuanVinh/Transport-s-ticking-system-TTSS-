@@ -6,6 +6,7 @@ import "./style.scss";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
+  // Dữ liệu người dùng nhập vào form
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -13,13 +14,24 @@ const LoginPage = () => {
     phoneNumber: "",
   });
 
+  // Thông báo thành công sau khi xử lý
   const [success, setSuccess] = useState("");
+  // Trạng thái đang gửi request
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Cập nhật giá trị formData khi người dùng nhập liệu vào input.
+   * Sử dụng thuộc tính `name` của input để xác định trường cần cập nhật.
+   */
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Xử lý submit form.
+   * - Nếu đang ở chế độ đăng nhập: gọi API login, lưu user vào localStorage, chuyển về trang chủ.
+   * - Nếu đang ở chế độ đăng ký: gọi API register, sau đó tự động chuyển sang form đăng nhập.
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -27,7 +39,7 @@ const LoginPage = () => {
     setLoading(true);
 
     if (isLogin) {
-      // Login
+      // Đăng nhập: gọi API và lưu thông tin user vào localStorage
       const res = await login(formData.email, formData.password);
       if (res.status === 200) {
         localStorage.setItem("user", JSON.stringify(res.data));
@@ -37,7 +49,7 @@ const LoginPage = () => {
         }, 1000);
       }
     } else {
-      // Register
+      // Đăng ký: gọi API tạo tài khoản mới
       const res = await register({
         email: formData.email,
         password: formData.password,
@@ -47,11 +59,11 @@ const LoginPage = () => {
 
       if (res.status === 201) {
         setSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
-        // Chuyển sang form đăng nhập
+        // Chuyển sang form đăng nhập sau 1.5 giây
         setTimeout(() => {
           setIsLogin(true);
           setSuccess("");
-          setFormData({ ...formData, password: "" }); // Clear password
+          setFormData({ ...formData, password: "" }); // Xóa mật khẩu đã nhập
         }, 1500);
       }
     }
