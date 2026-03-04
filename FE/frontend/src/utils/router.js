@@ -4,5 +4,6 @@ export const ROUTERS = {
     PROFILE: "profile",
     SEARCH: "tim-kiem-ve",
     LOGIN: "dang-nhap",
+    BOOKING: "dat-ve/:tripId",
   },
 };

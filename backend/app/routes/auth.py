@@ -43,6 +43,8 @@ def login():
         "message": "Đăng nhập thành công",
         "user_id": user.user_id,
         "name": user.full_name,
+        "email": user.email,
+        "phone_number": user.phone_number or "",
         "role": user.role
     })
 

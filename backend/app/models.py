@@ -6,7 +6,6 @@ class User(db.Model):
     __tablename__ = 'Users'
 
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    # Đổi String -> Unicode để lưu tên tiếng Việt
     full_name = db.Column(db.Unicode(100), nullable=False) 
     email = db.Column(db.String(100), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)

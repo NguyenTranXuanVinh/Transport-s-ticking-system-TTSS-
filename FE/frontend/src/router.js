@@ -5,6 +5,7 @@ import MasterLayout from "./pages/users/theme/masterLayout";
 import ProfilePage from "./pages/users/profilePage";
 import SearchPage from "./pages/users/searchPage";
 import LoginPage from "./pages/users/loginPage";
+import BookingPage from "./pages/users/bookingPage";
 
 const renderUserRouter = () => {
   const userRouter = [
@@ -23,6 +24,10 @@ const renderUserRouter = () => {
     {
       path: ROUTERS.USER.LOGIN,
       component: <LoginPage />,
+    },
+    {
+      path: ROUTERS.USER.BOOKING,
+      component: <BookingPage />,
     },
   ];
   return (
