@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   BsPersonCircle,
@@ -6,28 +6,35 @@ import {
   BsCheckLg,
   BsXLg,
   BsBoxArrowRight,
+  BsTicketPerforatedFill,
+  BsClock,
+  BsArrowRight,
+  BsFileTextFill,
 } from "react-icons/bs";
-import { API_BASE_URL } from "utils/api";
+import { API_BASE_URL, getUserBookings } from "utils/api";
 import { ROUTERS } from "utils/router";
 import "./style.scss";
+
+const STATUS_LABEL = {
+  PENDING: { text: "Chờ xác nhận", cls: "status-pending" },
+  CONFIRMED: { text: "Đã xác nhận", cls: "status-confirmed" },
+  CANCELLED: { text: "Đã huỷ", cls: "status-cancelled" },
+};
 
 const ProfilePage = () => {
   const navigate = useNavigate();
 
-  // Lấy dữ liệu user đã lưu trong localStorage (null nếu chưa đăng nhập)
   const storedUser = localStorage.getItem("user");
   const userInit = storedUser ? JSON.parse(storedUser) : null;
 
-  // Dữ liệu user hiện tại đang hiển thị
   const [user, setUser] = useState(userInit);
-  // Trạng thái đang ở chế độ chỉnh sửa hay chỉ xem
   const [isEditing, setIsEditing] = useState(false);
-  // Trạng thái đang gửi request cập nhật
   const [loading, setLoading] = useState(false);
-  // Thông báo kết quả sau khi cập nhật
   const [message, setMessage] = useState({ text: "", type: "" });
 
-  // Dữ liệu form chỉnh sửa, khởi tạo từ thông tin user hiện tại
+  const [bookings, setBookings] = useState([]);
+  const [bookingsLoading, setBookingsLoading] = useState(true);
+
   const [form, setForm] = useState({
     full_name: user?.name || "",
     phone_number: user?.phone_number || "",
@@ -35,7 +42,16 @@ const ProfilePage = () => {
     password: "",
   });
 
-  // Nếu chưa đăng nhập thì hiển thị màn hình thông báo
+  useEffect(() => {
+    if (!user) return;
+    const fetchBookings = async () => {
+      const data = await getUserBookings(user.user_id);
+      setBookings(data);
+      setBookingsLoading(false);
+    };
+    fetchBookings();
+  }, [user?.user_id]);
+
   if (!user) {
     return (
       <div className="profile-page">
@@ -51,18 +67,10 @@ const ProfilePage = () => {
     );
   }
 
-  /**
-   * Cập nhật giá trị form khi người dùng nhập liệu vào input.
-   */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  /**
-   * Gửi request PUT lên API để cập nhật thông tin cá nhân.
-   * Nếu thành công: cập nhật localStorage và state user, tắt chế độ chỉnh sửa.
-   * Nếu thất bại: hiển thị thông báo lỗi từ server hoặc lỗi kết nối.
-   */
   const handleSave = async () => {
     setLoading(true);
     setMessage({ text: "", type: "" });
@@ -72,7 +80,6 @@ const ProfilePage = () => {
         phone_number: form.phone_number,
         email: form.email,
       };
-      // Chỉ gửi password nếu người dùng có nhập
       if (form.password) payload.password = form.password;
 
       const response = await fetch(
@@ -86,7 +93,6 @@ const ProfilePage = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Cập nhật thông tin user trong localStorage và state
         const updatedUser = {
           ...user,
           name: form.full_name,
@@ -107,14 +113,10 @@ const ProfilePage = () => {
     setLoading(false);
   };
 
-  //Đăng xuất: xóa thông tin user khỏi localStorage và chuyển sang trang đăng nhập.
-
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate(`/${ROUTERS.USER.LOGIN}`);
   };
-
-  //Hủy chỉnh sửa: đặt lại form về dữ liệu user hiện tại, tắt chế độ chỉnh sửa.
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -129,6 +131,7 @@ const ProfilePage = () => {
 
   return (
     <div className="profile-page">
+      {/* ── Thông tin cá nhân ── */}
       <div className="profile-card">
         <div className="profile-top">
           <div className="avatar-circle">
@@ -136,9 +139,7 @@ const ProfilePage = () => {
           </div>
           <div className="profile-top-info">
             <h2>{user.name}</h2>
-            <span className="role-badge">
-              {user.role === "CUSTOMER" ? "Khách hàng" : user.role}
-            </span>
+            <span className="role-badge">{user.role}</span>
           </div>
           <button className="logout-btn" onClick={handleLogout}>
             <BsBoxArrowRight /> Đăng xuất
@@ -198,7 +199,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Hành động */}
         <div className="profile-actions">
           {isEditing ? (
             <>
@@ -219,6 +219,82 @@ const ProfilePage = () => {
             </button>
           )}
         </div>
+      </div>
+
+      {/* ── Lịch sử đặt vé ── */}
+      <div className="bookings-section">
+        <div className="bookings-header">
+          <BsTicketPerforatedFill className="header-icon" />
+          <h3>Lịch sử đặt vé</h3>
+          <span className="bookings-count">{bookings.length} đơn</span>
+        </div>
+
+        {bookingsLoading ? (
+          <div className="bookings-empty">Đang tải...</div>
+        ) : bookings.length === 0 ? (
+          <div className="bookings-empty">Bạn chưa có đơn đặt vé nào.</div>
+        ) : (
+          <div className="bookings-list">
+            {bookings.map((b) => {
+              const statusInfo = STATUS_LABEL[b.status] || {
+                text: b.status,
+                cls: "",
+              };
+              return (
+                <div className="booking-card" key={b.booking_id}>
+                  <div className="booking-card-header">
+                    <div className="booking-id">Đơn #{b.booking_id}</div>
+                    <span className={`booking-status ${statusInfo.cls}`}>
+                      {statusInfo.text}
+                    </span>
+                    <div className="booking-date">{b.booking_date}</div>
+                  </div>
+
+                  <div className="booking-trip-info">
+                    {b.trip.image && (
+                      <img
+                        src={b.trip.image}
+                        alt={b.trip.company}
+                        className="trip-thumb"
+                      />
+                    )}
+                    <div className="trip-text">
+                      <div className="trip-company">{b.trip.company}</div>
+                      <div className="trip-time">
+                        <BsClock /> {b.trip.departure} <BsArrowRight />{" "}
+                        {b.trip.arrival}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="tickets-list">
+                    {b.tickets.map((t, idx) => (
+                      <div className="ticket-row" key={idx}>
+                        <span className="seat-badge">Ghế {t.seat_number}</span>
+                        <span className="passenger">{t.passenger_name}</span>
+                        <span className="ticket-price">
+                          {t.price.toLocaleString("vi-VN")}đ
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="booking-total">
+                    {b.note && (
+                      <span className="booking-note">
+                        <BsFileTextFill /> {b.note}
+                      </span>
+                    )}
+                    <span className="total-label">Tổng:</span>
+                    <span className="total-value">
+                      {b.total_amount.toLocaleString("vi-VN")}đ
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

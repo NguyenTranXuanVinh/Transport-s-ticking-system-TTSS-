@@ -4,6 +4,7 @@ from extensions import db, cors
 from routes.auth import auth_bp
 from routes.stations import stations_bp
 from routes.trips import trips_bp
+from routes.bookings import bookings_bp
 
 
 app = Flask(__name__)
@@ -21,6 +22,7 @@ cors.init_app(app)
 app.register_blueprint(auth_bp, url_prefix='/api')
 app.register_blueprint(stations_bp, url_prefix='/api')
 app.register_blueprint(trips_bp, url_prefix='/api')
+app.register_blueprint(bookings_bp, url_prefix='/api')
 
 
 # 0. Health Check

@@ -1,19 +1,14 @@
-/**
- * @component HomePage
- * @description Trang chủ hiển thị toàn bộ danh sách chuyến xe hiện có.
- * Tự động gọi API lấy tất cả chuyến đi khi component được mount.
- */
 import { memo, useState, useEffect } from "react";
 import { searchTickets } from "../../../utils/api";
 import { useNavigate } from "react-router-dom";
 import "./style.scss";
 
 const HomePage = () => {
+  const navigate = useNavigate();
   // Danh sách chuyến xe lấy từ API
   const [trips, setTrips] = useState([]);
   // Trạng thái đang tải dữ liệu
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   // Gọi API lấy tất cả chuyến xe khi component được mount lần đầu
   useEffect(() => {
@@ -59,7 +54,9 @@ const HomePage = () => {
               <div className="ticket-action">
                 <div className="price">{trip.price}</div>
                 <div className="action-bottom">
-                  <button>Chọn chuyến</button>
+                  <button onClick={() => navigate(`/dat-ve/${trip.id}`)}>
+                    Chọn chuyến
+                  </button>
                 </div>
               </div>
             </div>

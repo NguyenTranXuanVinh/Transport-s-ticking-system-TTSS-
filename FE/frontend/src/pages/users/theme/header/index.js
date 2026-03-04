@@ -18,17 +18,13 @@ const Header = () => {
   const [vehicleId, setVehicleId] = useState("");
   const navigate = useNavigate();
 
-  // Lấy thông tin user từ localStorage (null nếu chưa đăng nhập)
+  // Lấy thông tin user từ localStorage
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
-  /**
-   * Xử lý submit form tìm kiếm.
-   * Chuyển hướng sang trang tìm kiếm với tham số ?id=<vehicleId>.
-   */
   const handleSearch = (e) => {
     e.preventDefault();
-    // Chuyển hướng sang trang tìm kiếm với tham số id (trip_id)
+    // Chuyển hướng sang trang tìm kiếm với tham số id
     navigate(`${ROUTERS.USER.SEARCH}?id=${vehicleId}`);
   };
 

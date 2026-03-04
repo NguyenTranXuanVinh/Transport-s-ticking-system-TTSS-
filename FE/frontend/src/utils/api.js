@@ -38,3 +38,39 @@ export const register = async (userData) => {
   const data = await response.json();
   return { status: response.status, data };
 };
+
+/**
+ * Đặt vé chuyến xe
+ * @param {Object} bookingData
+ * @param {number} bookingData.user_id       - ID người dùng
+ * @param {number} bookingData.trip_id       - ID chuyến xe
+ * @param {Array}  bookingData.seats         - Danh sách ghế [{ seat_number, passenger_name }]
+ * @param {string} [bookingData.note]        - Ghi chú (tuỳ chọn)
+ */
+export const bookTicket = async (bookingData) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/bookings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(bookingData),
+    });
+    const data = await response.json();
+    return { status: response.status, data };
+  } catch (error) {
+    console.error("Error booking ticket:", error);
+    return { status: 500, data: { error: "Lỗi kết nối server" } };
+  }
+};
+
+export const getUserBookings = async (userId) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/bookings/user/${userId}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching bookings:", error);
+    return [];
+  }
+};

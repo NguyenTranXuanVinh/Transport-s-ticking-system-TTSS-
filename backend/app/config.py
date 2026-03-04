@@ -9,11 +9,7 @@ class Config:
     )   
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_AS_ASCII = False
-    # Giữ connection mở, không tạo mới mỗi request (tránh popup lặp lại)
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": False,
         "pool_recycle": 3600,
     }
-
-
-
