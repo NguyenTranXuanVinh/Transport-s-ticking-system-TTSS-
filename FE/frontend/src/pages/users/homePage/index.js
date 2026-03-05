@@ -1,23 +1,18 @@
 import { memo, useState, useEffect } from "react";
-import { searchTickets } from "../../../utils/api";
+import { searchTickets } from "utils/api";
 import { useNavigate } from "react-router-dom";
 import "./style.scss";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  // Danh sách chuyến xe lấy từ API
   const [trips, setTrips] = useState([]);
-  // Trạng thái đang tải dữ liệu
   const [loading, setLoading] = useState(true);
 
-  // Gọi API lấy tất cả chuyến xe khi component được mount lần đầu
   useEffect(() => {
-    const fetchTrips = async () => {
-      const data = await searchTickets(); // không truyền params → lấy tất cả
+    searchTickets().then((data) => {
       setTrips(data);
       setLoading(false);
-    };
-    fetchTrips();
+    });
   }, []);
 
   return (

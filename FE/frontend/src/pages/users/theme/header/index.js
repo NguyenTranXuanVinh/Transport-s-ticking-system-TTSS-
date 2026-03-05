@@ -14,17 +14,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { ROUTERS } from "utils/router";
 
 const Header = () => {
-  // Giá trị ID chuyến đi người dùng nhập vào ô tìm kiếm
   const [vehicleId, setVehicleId] = useState("");
   const navigate = useNavigate();
-
-  // Lấy thông tin user từ localStorage
-  const storedUser = localStorage.getItem("user");
-  const user = storedUser ? JSON.parse(storedUser) : null;
+  const user = JSON.parse(localStorage.getItem("user") || "null");
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Chuyển hướng sang trang tìm kiếm với tham số id
     navigate(`${ROUTERS.USER.SEARCH}?id=${vehicleId}`);
   };
 
@@ -44,43 +39,34 @@ const Header = () => {
             <div className="col-6 header__top_right">
               <ul>
                 <li>
-                  <Link to={"https://www.facebook.com/hikari1090"}>
+                  <Link to="https://www.facebook.com/hikari1090">
                     <BsFacebook />
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to={
-                      "https://github.com/NguyenTranXuanVinh/Transport-s-ticking-system-TTSS-"
-                    }
-                  >
+                  <Link to="https://github.com/NguyenTranXuanVinh/Transport-s-ticking-system-TTSS-">
                     <BsGithub />
                   </Link>
                 </li>
-
                 <li>
-                  {user ? (
-                    <Link to={`/${ROUTERS.USER.PROFILE}`}>
-                      <BsPersonCircle />
-                      <span>{user.name}</span>
-                    </Link>
-                  ) : (
-                    <Link to={`/${ROUTERS.USER.LOGIN}`}>
-                      <BsPersonCircle />
-                      <span>Đăng nhập</span>
-                    </Link>
-                  )}
+                  <Link
+                    to={`/${user ? ROUTERS.USER.PROFILE : ROUTERS.USER.LOGIN}`}
+                  >
+                    <BsPersonCircle />
+                    <span>{user ? user.name : "Đăng nhập"}</span>
+                  </Link>
                 </li>
               </ul>
             </div>
           </div>
         </div>
       </div>
+
       <div className="header__bottom">
         <div className="container">
           <div className="row">
             <div className="col-xl-4">
-              <div className="header_logo ">
+              <div className="header_logo">
                 <div style={{ fontSize: "30px" }}>
                   <BsFillTrainFrontFill />
                   <BsBusFrontFill />
@@ -96,7 +82,7 @@ const Header = () => {
                 <div
                   className="header__cart_price"
                   style={{ fontSize: "20px" }}
-                ></div>
+                />
                 <ul>
                   <li>
                     <Link to="#">
@@ -109,6 +95,7 @@ const Header = () => {
           </div>
         </div>
       </div>
+
       <div className="search_bar">
         <form onSubmit={handleSearch}>
           <div>
