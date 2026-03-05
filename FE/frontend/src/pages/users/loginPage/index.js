@@ -1,74 +1,55 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { login, register } from "../../../utils/api";
+import { login, register } from "utils/api";
 import "./style.scss";
+
+const EMPTY_FORM = { email: "", password: "", fullName: "", phoneNumber: "" };
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
-  // Dữ liệu người dùng nhập vào form
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    fullName: "",
-    phoneNumber: "",
-  });
-
-  // Thông báo thành công sau khi xử lý
+  const [formData, setFormData] = useState(EMPTY_FORM);
   const [success, setSuccess] = useState("");
-  // Trạng thái đang gửi request
   const [loading, setLoading] = useState(false);
 
-  /**
-   * Cập nhật giá trị formData khi người dùng nhập liệu vào input.
-   * Sử dụng thuộc tính `name` của input để xác định trường cần cập nhật.
-   */
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
-  /**
-   * Xử lý submit form.
-   * - Nếu đang ở chế độ đăng nhập: gọi API login, lưu user vào localStorage, chuyển về trang chủ.
-   * - Nếu đang ở chế độ đăng ký: gọi API register, sau đó tự động chuyển sang form đăng nhập.
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setSuccess("");
     setLoading(true);
 
     if (isLogin) {
-      // Đăng nhập: gọi API và lưu thông tin user vào localStorage
       const res = await login(formData.email, formData.password);
       if (res.status === 200) {
         localStorage.setItem("user", JSON.stringify(res.data));
         setSuccess("Đăng nhập thành công!");
-        setTimeout(() => {
-          navigate("/"); // Chuyển về trang chủ
-        }, 1000);
+        setTimeout(() => navigate("/"), 1000);
       }
     } else {
-      // Đăng ký: gọi API tạo tài khoản mới
       const res = await register({
         email: formData.email,
         password: formData.password,
         full_name: formData.fullName,
         phone_number: formData.phoneNumber,
       });
-
       if (res.status === 201) {
         setSuccess("Đăng ký thành công! Vui lòng đăng nhập.");
-        // Chuyển sang form đăng nhập sau 1.5 giây
         setTimeout(() => {
           setIsLogin(true);
           setSuccess("");
-          setFormData({ ...formData, password: "" }); // Xóa mật khẩu đã nhập
+          setFormData((f) => ({ ...f, password: "" }));
         }, 1500);
       }
     }
 
     setLoading(false);
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setSuccess("");
   };
 
   return (
@@ -91,7 +72,6 @@ const LoginPage = () => {
               />
             </div>
           )}
-
           <div className="form-group">
             <label>Email</label>
             <input
@@ -102,7 +82,6 @@ const LoginPage = () => {
               onChange={handleChange}
             />
           </div>
-
           {!isLogin && (
             <div className="form-group">
               <label>Số điện thoại</label>
@@ -115,7 +94,6 @@ const LoginPage = () => {
               />
             </div>
           )}
-
           <div className="form-group">
             <label>Mật khẩu</label>
             <input
@@ -126,20 +104,13 @@ const LoginPage = () => {
               onChange={handleChange}
             />
           </div>
-
           <button type="submit" className="btn-submit" disabled={loading}>
             {loading ? "Đang xử lý..." : isLogin ? "Đăng Nhập" : "Đăng Ký"}
           </button>
         </form>
 
         <div className="switch-mode">
-          <span
-            onClick={() => {
-              setIsLogin(!isLogin);
-
-              setSuccess("");
-            }}
-          >
+          <span onClick={toggleMode}>
             {isLogin ? "Đăng ký ngay" : "Đăng nhập ngay"}
           </span>
         </div>

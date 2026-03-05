@@ -1,7 +1,9 @@
 import { memo, useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { searchTickets, bookTicket } from "../../../utils/api";
+import { searchTickets, bookTicket } from "utils/api";
 import "./style.scss";
+
+const EMPTY_PASSENGER = { seat_number: "", passenger_name: "" };
 
 const BookingPage = () => {
   const { tripId } = useParams();
@@ -9,51 +11,38 @@ const BookingPage = () => {
 
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Số lượng ghế muốn đặt
   const [seatCount, setSeatCount] = useState(1);
-  // Danh sách thông tin hành khách cho từng ghế
-  const [passengers, setPassengers] = useState([
-    { seat_number: "", passenger_name: "" },
-  ]);
+  const [passengers, setPassengers] = useState([{ ...EMPTY_PASSENGER }]);
   const [note, setNote] = useState("");
-
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Lấy thông tin chuyến xe từ API
   useEffect(() => {
-    const fetchTrip = async () => {
-      const data = await searchTickets({ id: tripId });
-      setTrip(data && data.length > 0 ? data[0] : null);
+    searchTickets({ id: tripId }).then((data) => {
+      setTrip(data?.length > 0 ? data[0] : null);
       setLoading(false);
-    };
-    fetchTrip();
+    });
   }, [tripId]);
 
-  // Đồng bộ mảng passengers theo seatCount
   const handleSeatCountChange = (value) => {
     const count = Math.max(1, Math.min(10, Number(value)));
     setSeatCount(count);
     setPassengers((prev) => {
       const updated = [...prev];
-      while (updated.length < count)
-        updated.push({ seat_number: "", passenger_name: "" });
+      while (updated.length < count) updated.push({ ...EMPTY_PASSENGER });
       return updated.slice(0, count);
     });
   };
 
-  const handlePassengerChange = (index, field, value) => {
+  const handlePassengerChange = (index, field, value) =>
     setPassengers((prev) =>
       prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)),
     );
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage({ type: "", text: "" });
 
-    // Kiểm tra người dùng đã đăng nhập chưa
     const user = JSON.parse(localStorage.getItem("user") || "null");
     if (!user) {
       setMessage({
@@ -93,9 +82,22 @@ const BookingPage = () => {
 
   const totalPrice = parseFloat(trip.price.replace(/[^0-9]/g, "")) * seatCount;
 
+  const tripDetails = [
+    { label: "Nhà xe", value: trip.company },
+    { label: "Khởi hành", value: trip.startTime },
+    { label: "Đến nơi", value: trip.endTime },
+    { label: "Đánh giá", value: `⭐ ${trip.rating}`, cls: "rating-star" },
+    { label: "Ghế trống", value: `${trip.seatsLeft} ghế` },
+    {
+      label: "Giá/ghế",
+      value: trip.price,
+      rowCls: "price-row",
+      cls: "price-tag",
+    },
+  ];
+
   return (
     <div className="container booking-page-container">
-      {/* Tiêu đề */}
       <div className="booking-header">
         <button className="btn-back" onClick={() => navigate(-1)}>
           ← Quay lại
@@ -104,37 +106,17 @@ const BookingPage = () => {
       </div>
 
       <div className="booking-layout">
-        {/* Cột trái: thông tin chuyến */}
         <div className="trip-summary card">
           <h3>Thông tin chuyến xe</h3>
           <img src={trip.image} alt={trip.company} className="trip-img" />
-          <div className="trip-detail-row">
-            <span className="label">Nhà xe</span>
-            <span className="value">{trip.company}</span>
-          </div>
-          <div className="trip-detail-row">
-            <span className="label">Khởi hành</span>
-            <span className="value">{trip.startTime}</span>
-          </div>
-          <div className="trip-detail-row">
-            <span className="label">Đến nơi</span>
-            <span className="value">{trip.endTime}</span>
-          </div>
-          <div className="trip-detail-row">
-            <span className="label">Đánh giá</span>
-            <span className="value rating-star">⭐ {trip.rating}</span>
-          </div>
-          <div className="trip-detail-row">
-            <span className="label">Ghế trống</span>
-            <span className="value">{trip.seatsLeft} ghế</span>
-          </div>
-          <div className="trip-detail-row price-row">
-            <span className="label">Giá/ghế</span>
-            <span className="value price-tag">{trip.price}</span>
-          </div>
+          {tripDetails.map(({ label, value, rowCls = "", cls = "" }) => (
+            <div key={label} className={`trip-detail-row ${rowCls}`}>
+              <span className="label">{label}</span>
+              <span className={`value ${cls}`}>{value}</span>
+            </div>
+          ))}
         </div>
 
-        {/* Cột phải: form đặt vé */}
         <div className="booking-form-wrap card">
           <h3>Thông tin đặt vé</h3>
 
@@ -143,7 +125,6 @@ const BookingPage = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            {/* Số lượng ghế */}
             <div className="form-group">
               <label>Số lượng ghế</label>
               <div className="seat-counter">
@@ -165,7 +146,6 @@ const BookingPage = () => {
               </div>
             </div>
 
-            {/* Thông tin từng hành khách */}
             {passengers.map((p, i) => (
               <div className="passenger-block" key={i}>
                 <h4>Hành khách {i + 1}</h4>
@@ -202,7 +182,6 @@ const BookingPage = () => {
               </div>
             ))}
 
-            {/* Ghi chú */}
             <div className="form-group">
               <label>Ghi chú (tuỳ chọn)</label>
               <textarea
@@ -213,7 +192,6 @@ const BookingPage = () => {
               />
             </div>
 
-            {/* Tổng tiền + nút đặt */}
             <div className="booking-footer">
               <div className="total-price">
                 Tổng: <strong>{totalPrice.toLocaleString("vi-VN")}đ</strong>

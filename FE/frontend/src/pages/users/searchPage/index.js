@@ -1,28 +1,16 @@
 import { memo, useState, useEffect } from "react";
-import { searchTickets } from "../../../utils/api";
+import { searchTickets } from "utils/api";
 import { useLocation } from "react-router-dom";
 import "./style.scss";
 
 const SearchPage = () => {
-  // Danh sách chuyến xe tìm được từ API
   const [tickets, setTickets] = useState([]);
-  const location = useLocation(); // biến chứa thông tin URL hiện tại
+  const { search } = useLocation();
 
-  // Gọi lại API mỗi khi query string trên URL thay đổi
   useEffect(() => {
-    const fetchTickets = async () => {
-      // Phân tích tham số từ URL
-      const searchParams = new URLSearchParams(location.search);
-      // Trả về các cặp [key,value] rồi gom thành object
-      const params = Object.fromEntries(searchParams.entries());
-
-      // Gọi API với tham số từ key
-      const data = await searchTickets(params);
-      // Lưu kết quả vào ticket
-      setTickets(data);
-    };
-    fetchTickets();
-  }, [location.search]); // Chạy lại khi URL thay đổi
+    const params = Object.fromEntries(new URLSearchParams(search));
+    searchTickets(params).then(setTickets);
+  }, [search]);
 
   return (
     <div className="container search-page-container">

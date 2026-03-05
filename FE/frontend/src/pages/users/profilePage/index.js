@@ -21,35 +21,90 @@ const STATUS_LABEL = {
   CANCELLED: { text: "Đã huỷ", cls: "status-cancelled" },
 };
 
+const initForm = (user) => ({
+  full_name: user?.name || "",
+  phone_number: user?.phone_number || "",
+  email: user?.email || "",
+  password: "",
+});
+
+const ProfileField = ({ label, editing, inputProps, value }) => (
+  <div className="field-item">
+    <label>{label}</label>
+    {editing ? <input {...inputProps} /> : <span>{value || "—"}</span>}
+  </div>
+);
+
+const BookingCard = ({ b }) => {
+  const statusInfo = STATUS_LABEL[b.status] || { text: b.status, cls: "" };
+  return (
+    <div className="booking-card" key={b.booking_id}>
+      <div className="booking-card-header">
+        <div className="booking-id">Đơn #{b.booking_id}</div>
+        <span className={`booking-status ${statusInfo.cls}`}>
+          {statusInfo.text}
+        </span>
+        <div className="booking-date">{b.booking_date}</div>
+      </div>
+
+      <div className="booking-trip-info">
+        {b.trip.image && (
+          <img src={b.trip.image} alt={b.trip.company} className="trip-thumb" />
+        )}
+        <div className="trip-text">
+          <div className="trip-company">{b.trip.company}</div>
+          <div className="trip-time">
+            <BsClock /> {b.trip.departure} <BsArrowRight /> {b.trip.arrival}
+          </div>
+        </div>
+      </div>
+
+      <div className="tickets-list">
+        {b.tickets.map((t, idx) => (
+          <div className="ticket-row" key={idx}>
+            <span className="seat-badge">Ghế {t.seat_number}</span>
+            <span className="passenger">{t.passenger_name}</span>
+            <span className="ticket-price">
+              {t.price.toLocaleString("vi-VN")}đ
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="booking-total">
+        {b.note && (
+          <span className="booking-note">
+            <BsFileTextFill /> {b.note}
+          </span>
+        )}
+        <span className="total-label">Tổng:</span>
+        <span className="total-value">
+          {b.total_amount.toLocaleString("vi-VN")}đ
+        </span>
+      </div>
+    </div>
+  );
+};
+
 const ProfilePage = () => {
   const navigate = useNavigate();
-
-  const storedUser = localStorage.getItem("user");
-  const userInit = storedUser ? JSON.parse(storedUser) : null;
-
-  const [user, setUser] = useState(userInit);
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem("user");
+    return stored ? JSON.parse(stored) : null;
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
-
   const [bookings, setBookings] = useState([]);
   const [bookingsLoading, setBookingsLoading] = useState(true);
-
-  const [form, setForm] = useState({
-    full_name: user?.name || "",
-    phone_number: user?.phone_number || "",
-    email: user?.email || "",
-    password: "",
-  });
+  const [form, setForm] = useState(() => initForm(user));
 
   useEffect(() => {
     if (!user) return;
-    const fetchBookings = async () => {
-      const data = await getUserBookings(user.user_id);
+    getUserBookings(user.user_id).then((data) => {
       setBookings(data);
       setBookingsLoading(false);
-    };
-    fetchBookings();
+    });
   }, [user?.user_id]);
 
   if (!user) {
@@ -67,8 +122,13 @@ const ProfilePage = () => {
     );
   }
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setForm(initForm(user));
+    setMessage({ text: "", type: "" });
   };
 
   const handleSave = async () => {
@@ -79,10 +139,10 @@ const ProfilePage = () => {
         full_name: form.full_name,
         phone_number: form.phone_number,
         email: form.email,
+        ...(form.password && { password: form.password }),
       };
-      if (form.password) payload.password = form.password;
 
-      const response = await fetch(
+      const res = await fetch(
         `${API_BASE_URL}/update-profile/${user.user_id}`,
         {
           method: "PUT",
@@ -90,9 +150,9 @@ const ProfilePage = () => {
           body: JSON.stringify(payload),
         },
       );
-      const data = await response.json();
+      const data = await res.json();
 
-      if (response.ok) {
+      if (res.ok) {
         const updatedUser = {
           ...user,
           name: form.full_name,
@@ -103,11 +163,11 @@ const ProfilePage = () => {
         setUser(updatedUser);
         setMessage({ text: "Cập nhật thành công!", type: "success" });
         setIsEditing(false);
-        setForm({ ...form, password: "" });
+        setForm((f) => ({ ...f, password: "" }));
       } else {
         setMessage({ text: data.message || "Có lỗi xảy ra.", type: "error" });
       }
-    } catch (err) {
+    } catch {
       setMessage({ text: "Không thể kết nối đến máy chủ.", type: "error" });
     }
     setLoading(false);
@@ -118,16 +178,29 @@ const ProfilePage = () => {
     navigate(`/${ROUTERS.USER.LOGIN}`);
   };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    setForm({
-      full_name: user?.name || "",
-      phone_number: user?.phone_number || "",
-      email: user?.email || "",
-      password: "",
-    });
-    setMessage({ text: "", type: "" });
-  };
+  const fields = [
+    {
+      label: "Họ và tên",
+      type: "text",
+      name: "full_name",
+      placeholder: "Nhập họ và tên",
+      value: user.name,
+    },
+    {
+      label: "Email",
+      type: "email",
+      name: "email",
+      placeholder: "Nhập email",
+      value: user.email,
+    },
+    {
+      label: "Số điện thoại",
+      type: "tel",
+      name: "phone_number",
+      placeholder: "Nhập số điện thoại",
+      value: user.phone_number,
+    },
+  ];
 
   return (
     <div className="profile-page">
@@ -153,50 +226,21 @@ const ProfilePage = () => {
         )}
 
         <div className="profile-fields">
-          <div className="field-item">
-            <label>Họ và tên</label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="full_name"
-                value={form.full_name}
-                onChange={handleChange}
-                placeholder="Nhập họ và tên"
-              />
-            ) : (
-              <span>{user.name || "—"}</span>
-            )}
-          </div>
-
-          <div className="field-item">
-            <label>Email</label>
-            {isEditing ? (
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="Nhập email"
-              />
-            ) : (
-              <span>{user.email || "—"}</span>
-            )}
-          </div>
-
-          <div className="field-item">
-            <label>Số điện thoại</label>
-            {isEditing ? (
-              <input
-                type="tel"
-                name="phone_number"
-                value={form.phone_number}
-                onChange={handleChange}
-                placeholder="Nhập số điện thoại"
-              />
-            ) : (
-              <span>{user.phone_number || "—"}</span>
-            )}
-          </div>
+          {fields.map(({ label, type, name, placeholder, value }) => (
+            <ProfileField
+              key={name}
+              label={label}
+              editing={isEditing}
+              value={value}
+              inputProps={{
+                type,
+                name,
+                value: form[name],
+                onChange: handleChange,
+                placeholder,
+              }}
+            />
+          ))}
         </div>
 
         <div className="profile-actions">
@@ -235,64 +279,9 @@ const ProfilePage = () => {
           <div className="bookings-empty">Bạn chưa có đơn đặt vé nào.</div>
         ) : (
           <div className="bookings-list">
-            {bookings.map((b) => {
-              const statusInfo = STATUS_LABEL[b.status] || {
-                text: b.status,
-                cls: "",
-              };
-              return (
-                <div className="booking-card" key={b.booking_id}>
-                  <div className="booking-card-header">
-                    <div className="booking-id">Đơn #{b.booking_id}</div>
-                    <span className={`booking-status ${statusInfo.cls}`}>
-                      {statusInfo.text}
-                    </span>
-                    <div className="booking-date">{b.booking_date}</div>
-                  </div>
-
-                  <div className="booking-trip-info">
-                    {b.trip.image && (
-                      <img
-                        src={b.trip.image}
-                        alt={b.trip.company}
-                        className="trip-thumb"
-                      />
-                    )}
-                    <div className="trip-text">
-                      <div className="trip-company">{b.trip.company}</div>
-                      <div className="trip-time">
-                        <BsClock /> {b.trip.departure} <BsArrowRight />{" "}
-                        {b.trip.arrival}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="tickets-list">
-                    {b.tickets.map((t, idx) => (
-                      <div className="ticket-row" key={idx}>
-                        <span className="seat-badge">Ghế {t.seat_number}</span>
-                        <span className="passenger">{t.passenger_name}</span>
-                        <span className="ticket-price">
-                          {t.price.toLocaleString("vi-VN")}đ
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="booking-total">
-                    {b.note && (
-                      <span className="booking-note">
-                        <BsFileTextFill /> {b.note}
-                      </span>
-                    )}
-                    <span className="total-label">Tổng:</span>
-                    <span className="total-value">
-                      {b.total_amount.toLocaleString("vi-VN")}đ
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
+            {bookings.map((b) => (
+              <BookingCard key={b.booking_id} b={b} />
+            ))}
           </div>
         )}
       </div>
