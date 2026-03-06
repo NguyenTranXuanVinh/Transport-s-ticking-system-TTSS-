@@ -221,6 +221,16 @@
         color: map.get($theme-color, "main");
         margin-bottom: 14px;
       }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 14px;
+
+        @media (max-width: 520px) {
+          grid-template-columns: 1fr;
+        }
+      }
     }
 
     // Footer: tổng tiền + nút xác nhận

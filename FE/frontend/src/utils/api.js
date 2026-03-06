@@ -1,40 +1,50 @@
 export const API_BASE_URL = "http://localhost:5000/api";
 
+const postJSON = (url, body) =>
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
 export const searchTickets = async (params = {}) => {
-  const res = await fetch(
-    `${API_BASE_URL}/trips?${new URLSearchParams(params)}`,
-  );
-  return await res.json();
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/trips?${new URLSearchParams(params)}`,
+    );
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching tickets:", err);
+    return [];
+  }
 };
 
 export const login = async (email, password) => {
-  const res = await fetch(`${API_BASE_URL}/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+  const res = await postJSON(`${API_BASE_URL}/login`, { email, password });
   return { status: res.status, data: await res.json() };
 };
 
 export const register = async (userData) => {
-  const res = await fetch(`${API_BASE_URL}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(userData),
-  });
+  const res = await postJSON(`${API_BASE_URL}/register`, userData);
   return { status: res.status, data: await res.json() };
 };
 
 export const bookTicket = async (bookingData) => {
-  const res = await fetch(`${API_BASE_URL}/bookings`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(bookingData),
-  });
-  return { status: res.status, data: await res.json() };
+  try {
+    const res = await postJSON(`${API_BASE_URL}/bookings`, bookingData);
+    return { status: res.status, data: await res.json() };
+  } catch (err) {
+    console.error("Error booking ticket:", err);
+    return { status: 500, data: { error: "Lỗi kết nối server" } };
+  }
 };
 
 export const getUserBookings = async (userId) => {
-  const res = await fetch(`${API_BASE_URL}/bookings/user/${userId}`);
-  return await res.json();
+  try {
+    const res = await fetch(`${API_BASE_URL}/bookings/user/${userId}`);
+    return await res.json();
+  } catch (err) {
+    console.error("Error fetching bookings:", err);
+    return [];
+  }
 };

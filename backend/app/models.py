@@ -80,7 +80,7 @@ class Booking(db.Model):
     trip_id = db.Column(db.Integer, db.ForeignKey('Trips.trip_id'), nullable=False)
     booking_date = db.Column(db.DateTime, default=datetime.utcnow)
     total_amount = db.Column(db.Numeric(15, 2), nullable=False)
-    status = db.Column(db.String(20), default='CONFIRMED')
+    status = db.Column(db.String(20), default='PENDING')
     note = db.Column(db.UnicodeText) # Ghi chú tiếng Việt
 
     user = db.relationship("User", back_populates="bookings")

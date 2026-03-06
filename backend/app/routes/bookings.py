@@ -4,12 +4,12 @@ from models import Booking, Ticket, Trip, Vehicle
 
 bookings_bp = Blueprint('bookings', __name__)
 
-# POST /api/bookings — Đặt vé, tạo booking và các ticket cho từng ghế
+# POST /api/bookings — Đặt vé
 @bookings_bp.route('/bookings', methods=['POST'])
 def create_booking():
     data = request.get_json()
 
-    # Kiểm tra các trường bắt buộc trong request body
+    # Validate các trường bắt buộc
     required = ['user_id', 'trip_id', 'seats']
     for field in required:
         if not data or field not in data:
@@ -19,23 +19,24 @@ def create_booking():
     if not trip:
         return jsonify({"error": "Không tìm thấy chuyến xe"}), 404
 
-    seats = data['seats']
+    seats = data['seats']  # list[{ seat_number, passenger_name }]
     if not isinstance(seats, list) or len(seats) == 0:
         return jsonify({"error": "Danh sách ghế không hợp lệ"}), 400
 
     total_amount = float(trip.base_price) * len(seats)
 
+    # Tạo booking
     booking = Booking(
         user_id=data['user_id'],
         trip_id=data['trip_id'],
         total_amount=total_amount,
-        status='CONFIRMED',
+        status='PENDING',
         note=data.get('note', '')
     )
     db.session.add(booking)
-    db.session.flush()  # Lấy booking_id trước khi tạo ticket
+    db.session.flush()  # Lấy booking_id trước khi commit
 
-    # Tạo ticket riêng cho từng ghế
+    # Tạo từng ticket cho mỗi ghế
     tickets = []
     for seat in seats:
         ticket = Ticket(
