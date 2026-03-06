@@ -20,13 +20,23 @@ export const searchTickets = async (params = {}) => {
 };
 
 export const login = async (email, password) => {
-  const res = await postJSON(`${API_BASE_URL}/login`, { email, password });
-  return { status: res.status, data: await res.json() };
+  try {
+    const res = await postJSON(`${API_BASE_URL}/login`, { email, password });
+    return { status: res.status, data: await res.json() };
+  } catch (err) {
+    console.error("Error logging in:", err);
+    return { status: 500, data: { message: "Lỗi kết nối máy chủ" } };
+  }
 };
 
 export const register = async (userData) => {
-  const res = await postJSON(`${API_BASE_URL}/register`, userData);
-  return { status: res.status, data: await res.json() };
+  try {
+    const res = await postJSON(`${API_BASE_URL}/register`, userData);
+    return { status: res.status, data: await res.json() };
+  } catch (err) {
+    console.error("Error registering:", err);
+    return { status: 500, data: { message: "Lỗi kết nối máy chủ" } };
+  }
 };
 
 export const bookTicket = async (bookingData) => {

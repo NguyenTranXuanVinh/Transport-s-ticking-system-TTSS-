@@ -93,12 +93,11 @@ class Ticket(db.Model):
     __tablename__ = 'Tickets'
 
     ticket_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    booking_id = db.Column(db.Integer, db.ForeignKey('Bookings.booking_id'), nullable=False)
-    seat_number = db.Column(db.String(10), nullable=False)
+    booking_id = db.Column(db.Integer, db.ForeignKey('Bookings.booking_id'), nullable=False) 
     passenger_name = db.Column(db.Unicode(100)) # Tên khách tiếng Việt
     price = db.Column(db.Numeric(15, 2), nullable=False)
     qr_code_data = db.Column(db.Text)
-
+    seat_number = db.Column(db.String(10), nullable=True)
     booking = db.relationship("Booking", back_populates="tickets")
 
 # 8. Payments

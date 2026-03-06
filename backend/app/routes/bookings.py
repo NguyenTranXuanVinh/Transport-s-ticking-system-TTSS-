@@ -15,49 +15,54 @@ def create_booking():
         if not data or field not in data:
             return jsonify({"error": f"Thiếu trường bắt buộc: {field}"}), 400
 
-    trip = Trip.query.get(data['trip_id'])
-    if not trip:
-        return jsonify({"error": "Không tìm thấy chuyến xe"}), 404
+    try:
+        trip = Trip.query.get(data['trip_id'])
+        if not trip:
+            return jsonify({"error": "Không tìm thấy chuyến xe"}), 404
 
-    seats = data['seats']  # list[{ seat_number, passenger_name }]
-    if not isinstance(seats, list) or len(seats) == 0:
-        return jsonify({"error": "Danh sách ghế không hợp lệ"}), 400
+        seats = data['seats']  # list[{ seat_number, passenger_name }]
+        if not isinstance(seats, list) or len(seats) == 0:
+            return jsonify({"error": "Danh sách ghế không hợp lệ"}), 400
 
-    total_amount = float(trip.base_price) * len(seats)
+        total_amount = float(trip.base_price) * len(seats)
 
-    # Tạo booking
-    booking = Booking(
-        user_id=data['user_id'],
-        trip_id=data['trip_id'],
-        total_amount=total_amount,
-        status='PENDING',
-        note=data.get('note', '')
-    )
-    db.session.add(booking)
-    db.session.flush()  # Lấy booking_id trước khi commit
-
-    # Tạo từng ticket cho mỗi ghế
-    tickets = []
-    for seat in seats:
-        ticket = Ticket(
-            booking_id=booking.booking_id,
-            seat_number=seat.get('seat_number', ''),
-            passenger_name=seat.get('passenger_name', ''),
-            price=trip.base_price
+        # Tạo booking
+        booking = Booking(
+            user_id=data['user_id'],
+            trip_id=data['trip_id'],
+            total_amount=total_amount,
+            status='PENDING',
+            note=data.get('note', '')
         )
-        db.session.add(ticket)
-        tickets.append(ticket)
+        db.session.add(booking)
+        db.session.flush()  # Lấy booking_id trước khi commit
 
-    db.session.commit()
+        # Tạo từng ticket cho mỗi ghế
+        tickets = []
+        for seat in seats:
+            ticket = Ticket(
+                booking_id=booking.booking_id,
+                seat_number=seat.get('seat_number', ''),
+                passenger_name=seat.get('passenger_name', ''),
+                price=trip.base_price
+            )
+            db.session.add(ticket)
+            tickets.append(ticket)
 
-    return jsonify({
-        "message": "Đặt vé thành công",
-        "booking_id": booking.booking_id,
-        "trip_id": booking.trip_id,
-        "total_amount": total_amount,
-        "status": booking.status,
-        "seats_booked": len(tickets)
-    }), 201
+        db.session.commit()
+
+        return jsonify({
+            "message": "Đặt vé thành công",
+            "booking_id": booking.booking_id,
+            "trip_id": booking.trip_id,
+            "total_amount": total_amount,
+            "status": booking.status,
+            "seats_booked": len(tickets)
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Lỗi hệ thống: {str(e)}"}), 500
 
 
 # GET /api/bookings/user/<user_id> — Lấy lịch sử đặt vé của user
