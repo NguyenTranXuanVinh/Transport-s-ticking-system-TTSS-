@@ -1,11 +1,12 @@
 import { memo, useState, useEffect } from "react";
 import { searchTickets } from "utils/api";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./style.scss";
 
 const SearchPage = () => {
   const [tickets, setTickets] = useState([]);
   const { search } = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const params = Object.fromEntries(new URLSearchParams(search));
@@ -45,7 +46,9 @@ const SearchPage = () => {
               <div className="ticket-action">
                 <div className="price">{ticket.price}</div>
                 <div className="action-bottom">
-                  <button>Chọn chuyến</button>
+                  <button onClick={() => navigate(`/dat-ve/${ticket.id}`)}>
+                    Chọn chuyến
+                  </button>
                 </div>
               </div>
             </div>
