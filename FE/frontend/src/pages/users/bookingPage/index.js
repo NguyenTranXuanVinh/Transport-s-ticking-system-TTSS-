@@ -3,8 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { searchTickets, bookTicket } from "utils/api";
 import "./style.scss";
 
-const EMPTY_PASSENGER = { seat_number: "", passenger_name: "" };
-
 const BookingPage = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
@@ -12,11 +10,11 @@ const BookingPage = () => {
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [seatCount, setSeatCount] = useState(1);
-  const [passengers, setPassengers] = useState([{ ...EMPTY_PASSENGER }]);
-  const [note, setNote] = useState("");
+  const [passengers, setPassengers] = useState([{ passenger_name: "" }]);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  // Tải thông tin chuyến xe theo tripId từ URL
   useEffect(() => {
     searchTickets({ id: tripId }).then((data) => {
       setTrip(data?.length > 0 ? data[0] : null);
@@ -24,21 +22,24 @@ const BookingPage = () => {
     });
   }, [tripId]);
 
+  // Đồng bộ số ghế với danh sách hành khách
   const handleSeatCountChange = (value) => {
     const count = Math.max(1, Math.min(10, Number(value)));
     setSeatCount(count);
     setPassengers((prev) => {
       const updated = [...prev];
-      while (updated.length < count) updated.push({ ...EMPTY_PASSENGER });
+      while (updated.length < count) updated.push({ passenger_name: "" });
       return updated.slice(0, count);
     });
   };
 
-  const handlePassengerChange = (index, field, value) =>
+  // Cập nhật tên hành khách
+  const handlePassengerChange = (index, value) =>
     setPassengers((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)),
+      prev.map((p, i) => (i === index ? { passenger_name: value } : p)),
     );
 
+  // Xử lý đặt vé: kiểm tra đăng nhập, gọi API, hiển thị kết quả
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage({ type: "", text: "" });
@@ -57,7 +58,6 @@ const BookingPage = () => {
       user_id: user.user_id,
       trip_id: Number(tripId),
       seats: passengers,
-      note,
     });
 
     if (status === 201) {
@@ -80,6 +80,7 @@ const BookingPage = () => {
   if (!trip)
     return <div className="booking-loading">Không tìm thấy chuyến xe.</div>;
 
+  // Tính tổng tiền dựa trên giá/ghế và số ghế đã chọn
   const totalPrice = parseFloat(trip.price.replace(/[^0-9]/g, "")) * seatCount;
 
   const tripDetails = [
@@ -149,48 +150,18 @@ const BookingPage = () => {
             {passengers.map((p, i) => (
               <div className="passenger-block" key={i}>
                 <h4>Hành khách {i + 1}</h4>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>Số ghế</label>
-                    <input
-                      type="text"
-                      placeholder="VD: A1, B2..."
-                      value={p.seat_number}
-                      onChange={(e) =>
-                        handlePassengerChange(i, "seat_number", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Họ tên hành khách</label>
-                    <input
-                      type="text"
-                      placeholder="Nhập họ tên"
-                      value={p.passenger_name}
-                      onChange={(e) =>
-                        handlePassengerChange(
-                          i,
-                          "passenger_name",
-                          e.target.value,
-                        )
-                      }
-                      required
-                    />
-                  </div>
+                <div className="form-group">
+                  <label>Họ tên hành khách</label>
+                  <input
+                    type="text"
+                    placeholder="Nhập họ tên"
+                    value={p.passenger_name}
+                    onChange={(e) => handlePassengerChange(i, e.target.value)}
+                    required
+                  />
                 </div>
               </div>
             ))}
-
-            <div className="form-group">
-              <label>Ghi chú (tuỳ chọn)</label>
-              <textarea
-                rows={3}
-                placeholder="VD: Yêu cầu ghế cửa sổ, thức ăn riêng..."
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-              />
-            </div>
 
             <div className="booking-footer">
               <div className="total-price">
