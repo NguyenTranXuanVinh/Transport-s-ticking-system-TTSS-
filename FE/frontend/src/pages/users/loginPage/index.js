@@ -10,6 +10,7 @@ const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) =>
@@ -18,6 +19,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSuccess("");
+    setError("");
     setLoading(true);
 
     if (isLogin) {
@@ -26,6 +28,8 @@ const LoginPage = () => {
         localStorage.setItem("user", JSON.stringify(res.data));
         setSuccess("Đăng nhập thành công!");
         setTimeout(() => navigate("/"), 1000);
+      } else {
+        setError("Đăng nhập thất bại. Vui lòng thử lại.");
       }
     } else {
       const res = await register({
@@ -39,8 +43,11 @@ const LoginPage = () => {
         setTimeout(() => {
           setIsLogin(true);
           setSuccess("");
+          setError("");
           setFormData((f) => ({ ...f, password: "" }));
         }, 1500);
+      } else {
+        setError(res.data?.message || "Đăng ký thất bại. Vui lòng thử lại.");
       }
     }
 
@@ -50,6 +57,7 @@ const LoginPage = () => {
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setSuccess("");
+    setError("");
   };
 
   return (
@@ -58,6 +66,7 @@ const LoginPage = () => {
         <h2>{isLogin ? "Đăng Nhập" : "Đăng Ký"}</h2>
 
         {success && <div className="success-msg">{success}</div>}
+        {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           {!isLogin && (

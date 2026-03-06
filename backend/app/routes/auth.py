@@ -8,24 +8,38 @@ auth_bp = Blueprint('auth', __name__)
 # API Đăng ký (Register)
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    data = request.json
-    #Kiểm tra xem đã có email trong database hay chưa
-    if User.query.filter_by(email=data.get('email')).first():
+    data = request.json or {}
+
+    # Kiểm tra các trường bắt buộc
+    if not data.get('email'):
+        return jsonify({"message": "Vui lòng nhập email"}), 400
+    if not data.get('password'):
+        return jsonify({"message": "Vui lòng nhập mật khẩu"}), 400
+    if not data.get('full_name'):
+        return jsonify({"message": "Vui lòng nhập họ và tên"}), 400
+
+    # Kiểm tra xem đã có email trong database hay chưa
+    if User.query.filter_by(email=data['email']).first():
         return jsonify({"message": "Email đã tồn tại"}), 400
-    #Mã hóa mật khẩu
+
+    # Mã hóa mật khẩu
     hashed_pass = generate_password_hash(data['password'])
-    #Tạo 1 user mới
+
+    # Tạo 1 user mới
     new_user = User(
-        full_name=data['full_name'], 
-        email=data['email'], 
+        full_name=data['full_name'],
+        email=data['email'],
         password_hash=hashed_pass,
         phone_number=data.get('phone_number', ''),
         role='CUSTOMER'
     )
-    #Lưu user mới vào database
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({"message": "Đăng ký thành công"}), 201
+    try:
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({"message": "Đăng ký thành công"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Lỗi hệ thống hoặc lỗi dữ liệu. Vui lòng kiểm tra lại thông tin."}), 500
 
 # API Đăng nhập (Login)
 @auth_bp.route('/login', methods=['POST'])

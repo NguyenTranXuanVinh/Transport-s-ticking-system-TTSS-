@@ -86,7 +86,7 @@ const BookingPage = () => {
     { label: "Nhà xe", value: trip.company },
     { label: "Khởi hành", value: trip.startTime },
     { label: "Đến nơi", value: trip.endTime },
-    { label: "Đánh giá", value: `⭐ ${trip.rating}`, cls: "rating-star" },
+    { label: "Đánh giá", value: `${trip.rating}`, cls: "rating-star" },
     { label: "Ghế trống", value: `${trip.seatsLeft} ghế` },
     {
       label: "Giá/ghế",
