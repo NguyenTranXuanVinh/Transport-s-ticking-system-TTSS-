@@ -101,7 +101,6 @@ const Header = () => {
           <div>
             <input
               type="text"
-              placeholder="Nhập ID chuyến đi để tìm kiếm..."
               value={vehicleId}
               onChange={(e) => setVehicleId(e.target.value)}
             />

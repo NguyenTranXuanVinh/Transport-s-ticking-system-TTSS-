@@ -12,6 +12,7 @@ const LoginPage = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Cập nhật giá trị form khi người dùng nhập
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -21,6 +22,7 @@ const LoginPage = () => {
     setLoading(true);
 
     if (isLogin) {
+      // Đăng nhập: lưu thông tin user vào localStorage
       const res = await login(formData.email, formData.password);
       if (res.status === 200) {
         localStorage.setItem("user", JSON.stringify(res.data));
@@ -28,6 +30,7 @@ const LoginPage = () => {
         setTimeout(() => navigate("/"), 1000);
       }
     } else {
+      // Đăng ký: sau khi thành công chuyển về form đăng nhập
       const res = await register({
         email: formData.email,
         password: formData.password,
@@ -47,6 +50,7 @@ const LoginPage = () => {
     setLoading(false);
   };
 
+  // Chuyển đổi giữa form đăng nhập và đăng ký
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setSuccess("");

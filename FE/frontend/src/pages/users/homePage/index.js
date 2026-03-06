@@ -6,12 +6,11 @@ import "./style.scss";
 const HomePage = () => {
   const navigate = useNavigate();
   const [trips, setTrips] = useState([]);
-  const [loading, setLoading] = useState(true);
 
+  // Lấy toàn bộ danh sách chuyến xe khi trang được tải
   useEffect(() => {
     searchTickets().then((data) => {
       setTrips(data);
-      setLoading(false);
     });
   }, []);
 
@@ -22,11 +21,7 @@ const HomePage = () => {
         <span>{trips.length} chuyến</span>
       </div>
 
-      {loading ? (
-        <div className="loading-text">Đang tải...</div>
-      ) : trips.length === 0 ? (
-        <div className="loading-text">Không có chuyến xe nào.</div>
-      ) : (
+      {
         <div className="ticket-list">
           {trips.map((trip) => (
             <div key={trip.id} className="ticket-item">
@@ -49,6 +44,7 @@ const HomePage = () => {
               <div className="ticket-action">
                 <div className="price">{trip.price}</div>
                 <div className="action-bottom">
+                  {/* Điều hướng đến trang đặt vé với trip ID */}
                   <button onClick={() => navigate(`/dat-ve/${trip.id}`)}>
                     Chọn chuyến
                   </button>
@@ -57,7 +53,7 @@ const HomePage = () => {
             </div>
           ))}
         </div>
-      )}
+      }
     </div>
   );
 };
