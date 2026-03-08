@@ -5,6 +5,13 @@ import "./style.scss";
 
 const EMPTY_PASSENGER = { seat_number: "", passenger_name: "" };
 
+const PassengerInput = ({ label, ...props }) => (
+  <div className="form-group">
+    <label>{label}</label>
+    <input type="text" required {...props} />
+  </div>
+);
+
 const BookingPage = () => {
   const { tripId } = useParams();
   const navigate = useNavigate();
@@ -19,18 +26,23 @@ const BookingPage = () => {
 
   useEffect(() => {
     searchTickets({ id: tripId }).then((data) => {
-      setTrip(data?.length > 0 ? data[0] : null);
+      setTrip(data?.[0] ?? null);
       setLoading(false);
     });
   }, [tripId]);
 
   const handleSeatCountChange = (value) => {
+    // Giới hạn số ghế từ 1 đến 10
     const count = Math.max(1, Math.min(10, Number(value)));
     setSeatCount(count);
+
     setPassengers((prev) => {
-      const updated = [...prev];
-      while (updated.length < count) updated.push({ ...EMPTY_PASSENGER });
-      return updated.slice(0, count);
+      const newPassengers = [];
+      for (let i = 0; i < count; i++) {
+        // Nếu hành khách thứ i đã có thông tin → giữ lại, chưa có → tạo ô trống
+        newPassengers.push(prev[i] ?? { ...EMPTY_PASSENGER });
+      }
+      return newPassengers;
     });
   };
 
@@ -60,18 +72,21 @@ const BookingPage = () => {
       note,
     });
 
-    if (status === 201) {
-      setMessage({
-        type: "success",
-        text: `Đặt vé thành công! Mã booking: #${data.booking_id}`,
-      });
-      setTimeout(() => navigate("/"), 2500);
-    } else {
-      setMessage({
-        type: "error",
-        text: data?.error || "Đặt vé thất bại, vui lòng thử lại.",
-      });
-    }
+    setMessage(
+      status === 201
+        ? {
+            type: "success",
+            text: `Đặt vé thành công! Mã booking: #${data.booking_id}`,
+          }
+        : {
+            type: "error",
+            text:
+              data?.error ||
+              data?.message ||
+              "Đặt vé thất bại, vui lòng thử lại.",
+          },
+    );
+    if (status === 201) setTimeout(() => navigate("/"), 2500);
     setSubmitting(false);
   };
 
@@ -150,34 +165,22 @@ const BookingPage = () => {
               <div className="passenger-block" key={i}>
                 <h4>Hành khách {i + 1}</h4>
                 <div className="form-row">
-                  <div className="form-group">
-                    <label>Số ghế</label>
-                    <input
-                      type="text"
-                      placeholder="VD: A1, B2..."
-                      value={p.seat_number}
-                      onChange={(e) =>
-                        handlePassengerChange(i, "seat_number", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Họ tên hành khách</label>
-                    <input
-                      type="text"
-                      placeholder="Nhập họ tên"
-                      value={p.passenger_name}
-                      onChange={(e) =>
-                        handlePassengerChange(
-                          i,
-                          "passenger_name",
-                          e.target.value,
-                        )
-                      }
-                      required
-                    />
-                  </div>
+                  <PassengerInput
+                    label="Số ghế"
+                    placeholder="VD: A1, B2..."
+                    value={p.seat_number}
+                    onChange={(e) =>
+                      handlePassengerChange(i, "seat_number", e.target.value)
+                    }
+                  />
+                  <PassengerInput
+                    label="Họ tên hành khách"
+                    placeholder="Nhập họ tên"
+                    value={p.passenger_name}
+                    onChange={(e) =>
+                      handlePassengerChange(i, "passenger_name", e.target.value)
+                    }
+                  />
                 </div>
               </div>
             ))}

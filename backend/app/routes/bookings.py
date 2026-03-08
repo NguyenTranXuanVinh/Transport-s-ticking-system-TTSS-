@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from extensions import db
-from models import Booking, Ticket, Trip, Vehicle
+from models import Booking, Ticket, Trip
+from routes.utils import get_booked_seats
 
 bookings_bp = Blueprint('bookings', __name__)
 
@@ -9,24 +10,27 @@ bookings_bp = Blueprint('bookings', __name__)
 def create_booking():
     data = request.get_json()
 
-    # Validate các trường bắt buộc
     required = ['user_id', 'trip_id', 'seats']
     for field in required:
         if not data or field not in data:
             return jsonify({"error": f"Thiếu trường bắt buộc: {field}"}), 400
 
     try:
-        trip = Trip.query.get(data['trip_id'])
+        trip = db.session.get(Trip, data['trip_id'])
         if not trip:
             return jsonify({"error": "Không tìm thấy chuyến xe"}), 404
 
-        seats = data['seats']  # list[{ seat_number, passenger_name }]
+        seats = data['seats']
         if not isinstance(seats, list) or len(seats) == 0:
             return jsonify({"error": "Danh sách ghế không hợp lệ"}), 400
 
+        total_seats = trip.vehicle.total_seats if trip.vehicle else 0
+        seats_left = total_seats - get_booked_seats(data['trip_id'])
+        if len(seats) > seats_left:
+            return jsonify({"error": f"Không đủ ghế trống. Còn lại: {seats_left} ghế."}), 400
+
         total_amount = float(trip.base_price) * len(seats)
 
-        # Tạo booking
         booking = Booking(
             user_id=data['user_id'],
             trip_id=data['trip_id'],
@@ -35,9 +39,8 @@ def create_booking():
             note=data.get('note', '')
         )
         db.session.add(booking)
-        db.session.flush()  # Lấy booking_id trước khi commit
+        db.session.flush()
 
-        # Tạo từng ticket cho mỗi ghế
         tickets = []
         for seat in seats:
             ticket = Ticket(
@@ -74,14 +77,6 @@ def get_user_bookings(user_id):
     for b in bookings:
         trip = b.trip
         vehicle = trip.vehicle if trip else None
-        tickets_data = [
-            {
-                "seat_number": t.seat_number,
-                "passenger_name": t.passenger_name,
-                "price": float(t.price)
-            }
-            for t in b.tickets
-        ]
         result.append({
             "booking_id": b.booking_id,
             "booking_date": b.booking_date.strftime('%d/%m/%Y %H:%M') if b.booking_date else "",
@@ -95,7 +90,10 @@ def get_user_bookings(user_id):
                 "arrival": trip.arrival_time.strftime('%H:%M %d/%m/%Y') if trip and trip.arrival_time else "",
                 "image": vehicle.img_url if vehicle else "",
             },
-            "tickets": tickets_data
+            "tickets": [
+                {"seat_number": t.seat_number, "passenger_name": t.passenger_name, "price": float(t.price)}
+                for t in b.tickets
+            ]
         })
 
     return jsonify(result)
