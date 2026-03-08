@@ -16,7 +16,7 @@ app.json.ensure_ascii = False
 # Kết nối các thành phần
 db.init_app(app)
 
-cors.init_app(app)
+cors.init_app(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=False)
 
 # Đăng ký Blueprints (Routes)
 app.register_blueprint(auth_bp, url_prefix='/api')
@@ -29,6 +29,7 @@ app.register_blueprint(bookings_bp, url_prefix='/api')
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "ok", "message": "Backend is running"})
+
 
 if __name__ == '__main__':
     with app.app_context():

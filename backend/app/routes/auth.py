@@ -66,7 +66,9 @@ def login():
 @auth_bp.route('/update-profile/<int:user_id>', methods=['PUT'])
 def update_profile(user_id):
     #Tìm user theo ID, nếu không tồn tại trả về 404 tự động
-    user = User.query.get_or_404(user_id)
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({"message": "Người dùng không tồn tại"}), 404
     data = request.json
 
     #Cập nhật họ tên nếu có gửi lên
